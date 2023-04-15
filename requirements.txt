@@ -2,3 +2,5 @@ pyowm
 telebot
 datetime
 python-dotenv
+python-telegram-bot
+schedule
