@@ -10,10 +10,12 @@ load_dotenv()
 bot = telebot.TeleBot(os.getenv('TELEGRAM_TOKEN'))
 owm = OWM(os.getenv('OWM_API_KEY'))
 
+# Обработчик команды /start
 @bot.message_handler(commands=['start'])
 def start_message(message):
     bot.send_message(message.chat.id, 'Привет, я бот-погода! Напиши мне название города и я скажу тебе, какая погода сейчас там.')
 
+# Обработчик текстовых сообщений
 @bot.message_handler(content_types=['text'])
 def send_weather(message):
     mgr = owm.weather_manager()
@@ -23,11 +25,12 @@ def send_weather(message):
         temperature = w.temperature('celsius')['temp']
         answer = f"В городе {message.text} сейчас {w.detailed_status}, температура воздуха {temperature:.1f}°C"
     except:
-        answer = "Я не смог узнать погоду в этом городе, попробуйте еще раз"
+        answer = f"Я не смог узнать погоду в городе {message.text}, попробуйте еще раз"
     bot.send_message(message.chat.id, answer)
 
+# Функция отправки ежедневной погоды
 def send_daily_weather():
-    city = "Moscow" # здесь указать город, для которого отправлять погоду
+    city = os.getenv('CITY_NAME')
     mgr = owm.weather_manager()
     try:
         observation = mgr.weather_at_place(city)
@@ -36,7 +39,7 @@ def send_daily_weather():
         answer = f"В городе {city} сейчас {w.detailed_status}, температура воздуха {temperature:.1f}°C"
         bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), answer)
     except:
-        answer = "Я не смог узнать погоду в этом городе, попробуйте еще раз"
+        answer = f"Я не смог узнать погоду в городе {city}, попробуйте еще раз"
         bot.send_message(os.getenv('TELEGRAM_CHAT_ID'), answer)
 
 # Отправляем погоду в 9 утра каждый день
