@@ -13,7 +13,9 @@ owm = OWM(os.getenv('OWM_API_KEY'))
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Привет, я бот-погода! Напиши мне название города и я скажу тебе, какая погода сейчас там.')
+    keyboard = telebot.types.ReplyKeyboardMarkup(True, False)
+    keyboard.add("Москва")
+    bot.send_message(message.chat.id, 'Привет, я бот-погода! Напиши мне название города и я скажу тебе, какая погода сейчас там.', reply_markup=keyboard)
 
 # Обработчик текстовых сообщений
 @bot.message_handler(content_types=['text'])
@@ -24,6 +26,14 @@ def send_weather(message):
         w = observation.weather
         temperature = w.temperature('celsius')['temp']
         answer = f"В городе {message.text} сейчас {w.detailed_status}, температура воздуха {temperature:.1f}°C"
+        if temperature < 0:
+            answer += ", лучше надеть зимнюю куртку, шарф и перчатки."
+        elif temperature < 10:
+            answer += ", лучше надеть теплую куртку, толстовку или футболку с кофтой."
+        elif temperature < 20:
+            answer += ", лучше надеть легкую куртку с футболкой или свитер."
+        else:
+            answer += ", лучше надеть легкую одежду."
     except:
         answer = f"Я не смог узнать погоду в городе {message.text}, попробуйте еще раз"
     bot.send_message(message.chat.id, answer)
